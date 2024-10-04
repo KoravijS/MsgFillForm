@@ -1,0 +1,143 @@
+<title>KTC Form</title>
+<div class="form-container">
+  <h3 style="margin-bottom: 25px;">แบบฟอร์มตอบกลับ KTC สำหรับ แมสเซนเจอร์</h3>
+  <div class="form-group">
+    <label for="msgPrefix">รหัสนำหน้าใบสั่งงาน <label style="color: red;">*</label></label><select id="msgPrefix" name="msgPrefix">
+      <option value="">Select</option>
+      <option value="PIV">PIV</option>
+      <option value="UDE">UDE</option>
+      <option value="PST">PST</option>
+      <option value="AAX">AAX</option>
+      <option value="KGS">KGS</option>
+      <option value="BRI">BRI</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="jobNo">เลขที่ใบสั่งงาน <label style="color: red;">*</label></label><input type="text" id="jobNo" name="jobNo">
+  </div>
+  <div class="form-group radio-group">
+    <label>ผลการดำเนินการ <label style="color: red;">*</label></label><label><input type="radio" name="action" value="Option1"> ติดต่อกลับไม่ได้</label><label><input type="radio" name="action" value="Option2"> ติดต่อได้รับเอกสารตามนัด</label><label><input type="radio" name="action" value="Option3"> ติดต่อได้ลูกค้าขอเลื่อนนัด</label><label><input type="radio" name="action" value="Option4"> ติดต่อได้ลูกค้าขอยกเลิกการสมัคร</label><label><input type="radio" name="action" value="Option5"> รับทราบดำเนินการตามที่แจ้งมา</label>
+  </div>
+  <div class="form-group date-group"><label for="newDate">วันที่นัดหมายใหม่ (กรณีมีการเลื่อนวันนัดหมาย) </label><input type="date" id="newDate" name="newDate" style="margin-left: 20px;"></div>
+  <div class="form-group"><label for="details">รายละเอียดที่ต้องการแจ้งให้ KTC ทราบ</label><textarea id="details" name="details"></textarea></div>
+  <div class="form-group">
+    <label for="reporter">ชื่อผู้แจ้ง <label style="color: red;">*</label></label><input type="text" id="reporter" name="reporter">
+  </div>
+  <div class="form-group"><label for="contactNumber">เบอร์โทรศัพท์หรือผู้ที่สามารถติดต่อกลับได้</label><input type="text" id="contactNumber" name="contactNumber"></div>
+  <div align="right"><button id="submitButton" class="submit-btn">Submit</button></div>
+</div>
+<style>
+    body {
+    font-family: Arial, sans-serif;
+}
+.form-container {
+    width: 60%;
+    margin: auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+label {
+    display: block;
+    font-weight: bold;
+}
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.radio-group {
+    display: flex;
+    flex-direction: column;
+}
+input[type="radio"] {
+    margin-right: 10px;
+}
+.date-group {
+    display: flex;
+    align-items: center;
+}
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#newDate{
+    margin-left: 20px;
+}
+h3{
+    margin-bottom: 25px;
+}
+</style>
+<script>
+    // Example submit button functionality
+    document.getElementById('submitButton').addEventListener('click', function() {
+        alert('Form Submitted!');
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Set the current date for the newDate input field
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        var dd = String(today.getDate()).padStart(2, '0');
+        var todayFormatted = mm + '/' + dd + '/' + yyyy;
+        document.getElementById('newDate').value = todayFormatted;
+
+        // Pre-fill form fields based on URL parameters
+        var msgPrefix = getUrlParameter('MsgPrefix');
+        var jobNo = getUrlParameter('JobNo');
+
+        if (msgPrefix) {
+            document.getElementById('msgPrefix').value = msgPrefix;
+        }
+
+        if (jobNo) {
+            document.getElementById('jobNo').value = jobNo;
+        }
+
+        // Check if submit button should be enabled/disabled
+        checkFormConditions();
+
+        // Add event listeners to check form conditions when fields change
+        document.getElementById('msgPrefix').addEventListener('change', checkFormConditions);
+        document.getElementById('jobNo').addEventListener('input', checkFormConditions);
+        document.getElementById('reporter').addEventListener('input', checkFormConditions);
+
+        // Add event listeners for radio buttons
+        document.querySelectorAll('input[name="action"]').forEach(function(radio) {
+            radio.addEventListener('change', checkFormConditions);
+        });
+    });
+
+    // Function to check if any condition is not met and disable/enable the submit button
+    function checkFormConditions() {
+        var msgPrefix = document.getElementById('msgPrefix').value;
+        var jobNo = document.getElementById('jobNo').value.trim();
+        var reporter = document.getElementById('reporter').value.trim();
+        var actionSelected = document.querySelector('input[name="action"]:checked');
+
+        // Disable the button if any condition is not met
+        if (msgPrefix === "" || jobNo === "" || !actionSelected || reporter === "") {
+            document.getElementById('submitButton').disabled = true;
+        } else {
+            document.getElementById('submitButton').disabled = false;
+        }
+    }
+
+    // Function to capture URL parameters
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(window.location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+</script>
+
